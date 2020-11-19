@@ -11,6 +11,8 @@ MotorController::MotorController()
 
 MotorController::~MotorController()
 {
+    delete m_PIDL;
+    delete m_PIDR;
 }
 
 void MotorController::init()
