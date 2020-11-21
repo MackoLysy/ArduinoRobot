@@ -1,3 +1,4 @@
+#pragma once
 #include <Arduino.h>
 #include "AlphaBot.h"
 #include <PID_v1.h>
