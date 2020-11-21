@@ -35,8 +35,31 @@ void Parser::parseData()
         {
             int angle = m_doc["angle"];
             int result = m_distance->getDistance(angle);
-            Serial.println(result);
             createDistanceResponse(angle, result);
+            return;
+        }
+        if (cmd == "forward")
+        {
+            int value = m_doc["ticks"];
+            Serial.println(value);
+            m_motor->moveFoward(value);
+            createMoveResponse("forward", value);
+            return;
+        }
+        if (cmd == "left")
+        {
+            int value = m_doc["ticks"];
+            Serial.println(value);
+            m_motor->rotateLeft(value);
+            createMoveResponse("left", value);
+            return;
+        }
+        if (cmd == "right")
+        {
+            int value = m_doc["ticks"];
+            Serial.println(value);
+            m_motor->rotateRight(value);
+            createMoveResponse("right", value);
             return;
         }
         m_response = "{ cmd: \"empty\"}";
@@ -54,5 +77,14 @@ void Parser::createDistanceResponse(int angle, int dinstance)
     m_response += angle;
     m_response += ", dist:";
     m_response += dinstance;
+    m_response + "}";
+}
+
+void Parser::createMoveResponse(String dir, int ticks)
+{
+    m_response = "{ cmd: \"move\", dir:\"";
+    m_response += dir;
+    m_response += "\", ticks:";
+    m_response += ticks;
     m_response + "}";
 }

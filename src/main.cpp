@@ -6,11 +6,19 @@
 #include <SPI.h>
 #include <Wire.h>
 #include <distanceMeter.h>
+#include <arduino-timer.h>
 
-MotorController Motor;
+MotorController motor;
 Esp8266 esp8266;
 Parser parser;
 DistanceMeter distance;
+auto timer = timer_create_default();
+
+bool updateMotor(void *)
+{
+  motor.update();
+  return true;
+}
 
 void setup()
 {
@@ -19,11 +27,13 @@ void setup()
   esp8266.init();
   distance.init();
   parser.setMessage(esp8266.getMessage());
-  parser.setPointers(&distance);
+  parser.setPointers(&distance, &motor);
+  timer.every(100, updateMotor);
 }
 
 void loop()
 {
+  timer.tick();
   esp8266.handleMessage();
   if (esp8266.isReady())
   {

@@ -11,17 +11,22 @@ public:
     ~MotorController();
     void init();
     void update();
+    void moveFoward(int ticks);
+    void rotateLeft(int ticks);
+    void rotateRight(int ticks);
 
 private:
     static void leftInterruptHanlder();
     static void rightInterruptHanlder();
+    static int countL;
+    static int countR;
+    static bool m_isMove;
+    static int m_moveCounter;
     const int m_maxSpeed = 16;
     void PIDinit();
     PID *m_PIDL;
     PID *m_PIDR;
     AlphaBot robot;
-    static int countL;
-    static int countR;
     double m_setpointL;
     double m_inputL;
     double m_outputL;

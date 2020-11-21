@@ -2,11 +2,12 @@
 
 int MotorController::countL = 0;
 int MotorController::countR = 0;
+bool MotorController::m_isMove = false;
+int MotorController::m_moveCounter = 0;
 
 MotorController::MotorController()
 {
     init();
-    // robot.Forward();
 }
 
 MotorController::~MotorController()
@@ -30,32 +31,88 @@ void MotorController::PIDinit()
     m_PIDR->SetMode(AUTOMATIC);
     m_inputL = 0;
     m_inputR = 0;
-    m_setpointL = 100 * m_maxSpeed / 255;
-    m_setpointR = 100 * m_maxSpeed / 255;
+    m_setpointL = 20 * m_maxSpeed / 255;
+    m_setpointR = 20 * m_maxSpeed / 255;
 }
 
 void MotorController::leftInterruptHanlder()
 {
-    countL++;
+    if (m_isMove)
+    {
+        countL++;
+        m_moveCounter++;
+    }
 }
 
 void MotorController::rightInterruptHanlder()
 {
-    countR++;
+    if (m_isMove)
+    {
+        countR++;
+    }
 }
 
 void MotorController::update()
 {
-    m_inputL = countL;
-    if (m_PIDL->Compute() == true)
+    if (m_isMove)
     {
-        countL = 0;
+
+        m_inputL = countL;
+        if (m_PIDL->Compute() == true)
+        {
+            countL = 0;
+        }
+        robot.SetLSpeed(m_outputL);
+        m_inputR = countR;
+        if (m_PIDR->Compute() == true)
+        {
+            countR = 0;
+        }
+        robot.SetRSpeed(m_outputR);
     }
-    robot.SetLSpeed(m_outputL);
-    m_inputR = countR;
-    if (m_PIDR->Compute() == true)
+}
+
+void MotorController::moveFoward(int ticks)
+{
+    robot.Brake();
+    m_moveCounter = 0;
+    m_isMove = true;
+    while (m_moveCounter <= ticks)
     {
-        countR = 0;
+        Serial.println(m_moveCounter);
+        robot.Forward();
     }
-    robot.SetRSpeed(m_outputR);
+    m_moveCounter = 0;
+    m_isMove = false;
+    robot.Brake();
+}
+
+void MotorController::rotateLeft(int ticks)
+{
+    robot.Brake();
+    m_moveCounter = 0;
+    m_isMove = true;
+    while (m_moveCounter <= ticks)
+    {
+        Serial.println(m_moveCounter);
+        robot.LeftCircle();
+    }
+    m_moveCounter = 0;
+    m_isMove = false;
+    robot.Brake();
+}
+
+void MotorController::rotateRight(int ticks)
+{
+    robot.Brake();
+    m_moveCounter = 0;
+    m_isMove = true;
+    while (m_moveCounter <= ticks)
+    {
+        Serial.println(m_moveCounter);
+        robot.RightCircle();
+    }
+    m_moveCounter = 0;
+    m_isMove = false;
+    robot.Brake();
 }
